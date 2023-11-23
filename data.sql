@@ -40,7 +40,7 @@ CREATE TABLE stats_object(
     value DOUBLE(8, 2) NOT NULL
 );
 
-ALTER TABLE stats_object ADD CONSTRAINT PK_stats_object PRIMARY KEY (id_)
+ALTER TABLE stats_object ADD CONSTRAINT PK_stats_object PRIMARY KEY (id_stats_object)
 
 CREATE TABLE inventory(
     id_inventory INT NOT NULL
@@ -49,19 +49,28 @@ CREATE TABLE inventory(
     amount INT NOT NULL,
 );
 
+ALTER TABLE inventory
+ADD CONSTRAINT PK_inventory PRIMARY KEY (id_inventory);
+
 CREATE TABLE statistics(
     id_statistics INT NOT NULL AUTO_INCREMENT,
     statistics_type VARCHAR(255) NOT NULL
 );
 
+ALTER TABLE statistics 
+ADD CONSTRAINT PK_id_statistics PRIMARY KEY (id_statistics)
+ADD CONSTRAINT UQ_statistics_type UNIQUE(statistics_type);
 
 CREATE TABLE character(
     id_character VARCHAR(255) NOT NULL,
     user_name VARCHAR(255) NOT NULL,
     id_class INT NOT NULL,
-    level INT NOT NULL,
+    level_character INT NOT NULL,
     name_character VARCHAR(255) NOT NULL
 );
+
+ALTER TABLE character
+ADD 
 
 CREATE TABLE account(
     user_name VARCHAR(255) NOT NULL,
