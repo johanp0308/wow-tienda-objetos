@@ -39,7 +39,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
 
 6. type_object
 - id (INT PK)
-- type (VARCHAR() )
+- type (VARCHAR(30))
 
 7. object
 - id_object (VARCHAR(50) PK)
@@ -70,6 +70,6 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
 - value (double)
 
 12. buy
-- id_buy (INT PK)
-- user_name (VARCHAR FK)
-- id_object (VARCHAR FK)
+- id_buy (VARCHAR(30) PK)
+- user_name (VARCHAR(20) FK)
+- id_object (VARCHAR(50) FK)
