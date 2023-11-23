@@ -73,3 +73,6 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
 - id_buy (VARCHAR(30) PK)
 - user_name (VARCHAR(20) FK)
 - id_object (VARCHAR(50) FK)
+
+13. character
+- id_character (VARCHAR())
