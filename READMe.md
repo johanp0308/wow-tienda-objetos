@@ -1,4 +1,4 @@
-# Item Shop (World of Warcraft)
+# Tienda de objetos (World of Warcraft)
 
 
 Se busca desarrollar un sistema integral para la gestión de la venta de objetos en el contexto de World of Warcraft. Los usuarios tienen la posibilidad de poseer múltiples cuentas, cada una de las cuales puede crear hasta un máximo de 10 personajes. Es importante destacar que los objetos adquiridos están vinculados exclusivamente a la cuenta del usuario.
@@ -98,25 +98,43 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
 1. Table: `object`
    CRUD:
    ```sql
+   -- CREATE
+   
+
+
    ```
-   1. Get all objects of a class.
-   - **Procedimiento:**  ``
+   1. Consigue todos los objetos de una clase.
+   - **Procedimiento:**  `getAll_object_by_class`
+   example:
    ```sql
     SELECT *
     FROM object o
-    JOIN class c ON 
+    WHERE o.id_class = (
+      SELECT cclass_id 
+      FROM class c
+      WHERE c.class like 'Shaman'
+   );
    ```
-   2. Get category and types that do not have objects
+   2. Obtener categoría y tipos que no tienen objetos.
+   - **Procedimiento:**  `getAll_category_and_type`
+   ```sql
+   SELECT o.category, GROUP_CONCAT(DISTINCT o.type_object)
+   FROM object o
+   WHERE o.category IN (SELECT category FROM object)
+   AND o.type_object IN (SELECT type_object FROM object)
+   GROUP BY o.category;
+   ```
+   3. Consigue todos los objetos y ordénalos por nivel.
+   - **Procedimiento:**  `getAll_object_order_by_level`
+   ```sql
+   SELECT o.*
+   FROM object o
+   ORDER BY o.level_object; 
+   ```
+   4. Obtener el objeto cuya categoría ha sido comprada
    - **Procedimiento:**  ``
    ```sql
-   ```
-   3. Get all objects and sort by level
-   - **Procedimiento:**  ``
-   ```sql
-   ```
-   4. Obtain object whose category has been purchased
-   - **Procedimiento:**  ``
-   ```sql
+
    ```
    5. Obtain items with your class, race and faction
    - **Procedimiento:**  ``
