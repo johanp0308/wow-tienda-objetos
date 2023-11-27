@@ -102,6 +102,9 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    1. Get all objects of a class.
    - **Procedimiento:**  ``
    ```sql
+    SELECT *
+    FROM object o
+    JOIN class c ON 
    ```
    2. Get category and types that do not have objects
    - **Procedimiento:**  ``
