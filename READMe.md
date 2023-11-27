@@ -21,12 +21,12 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
 
 2. race
 - id (INT PK)
-- race (VARCHAR(50) UNIQUE)
+- race (VARCHAR(30) UNIQUE)
 
 3. class
 - class_id (INT PK)
 - race_id (INT FK)
-- faction_id (INT FK)
+- class (VARCHAR(30) UNIQUE)
 
 4. user_account
 - email (VARCHAR(50) PK)
@@ -36,6 +36,8 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
 - user_name (VARCHAR(20) PK)
 - password_account (VARCHAR(30))
 - email (VARCHAR(50) FK)
+- wow_currency (double)
+- token_account (VARCHAR(30))
 
 6. type_object
 - id (INT PK)
@@ -44,12 +46,13 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
 7. object
 - id_object (VARCHAR(50) PK)
 - name_object (VARCHAR(50) UNIQUE)
+- type_object (ENUM('BlizzObject','at a distance','Trinket','bag','head','shirt','waist','neck','finger','two hands','shield','back','shoudler','right hand','left hand','hands','dolls','feet','tabard','torso','a hand','consumable'))
 - leve_object (INT)
-- category (ENUM('pobre','comun','poco comun','raro','epico','legendario','artefacto'))
+- category (ENUM('poor','common','rare','queer','epic','legendary','artifact'))
 
 8. inventory
 - id_inventory(INT PK)
-- id_character (INT FK)
+- id_character_wow (INT FK)
 - id_object (VARCHAR(50) FK)
 - amount (INT)
 
@@ -59,20 +62,373 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
 
 10. stats_object
 - id_stats_object (INT PK)
-- id_object (INT FK)
+- id_object (VARCHAR(50) FK)
 - id_stats (INT FK)
 - value (double)
 
-11. stats_character
-- id_stat_chara (INT PK)
-- id_character (INT FK)
-- id_stats (INT FK)
-- value (double)
-
-12. buy
+11. buy
 - id_buy (VARCHAR(30) PK)
 - user_name (VARCHAR(20) FK)
 - id_object (VARCHAR(50) FK)
+- token_account (VARCHAR(50) FK)
 
-13. character
-- id_character (VARCHAR())
+12. character_wow
+- id_character_wow (INT PK)
+- user_name (VARCHAR(30))
+- id_class (INT FK)
+- level (INT)
+- name_character_wow (VARCHAR(20) UNIQUE)
+
+13.  locker
+- id_locker (INT PK)
+- id_account (VARCHAR(30))
+
+14.  locker_object
+- id_locker (INT FK)
+- id_object (INT FK)
+
+15.  catalogue
+- id_producto (INT PK)
+- value_wc (DOUBLE)
+- id_object (VARCHAR(50) FK)
+
+
+## Queries
+
+1. Table: `object`
+   CRUD:
+   ```sql
+   ```
+   1. Get all objects of a class.
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. Get category and types that do not have objects
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. Get all objects and sort by level
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. Obtain object whose category has been purchased
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. Obtain items with your class, race and faction
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+
+2. Table: `faction`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+3. Table: `buy`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+4. Table: `stats_object`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+5. Table: `inventory`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+6. Table: `statistics`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+7. Table: `character_wow`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+8. Table: `account`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+9.  Table: `user_account`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+10. Table: `locker_object`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+11. Table: `catalogue`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+12. Table: `locker`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+13. Table: `race`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+14. Table: `class`
+   CRUD:
+   ```sql
+   ```
+   1. query 1
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   2. query 2
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   3. query 3
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   4. query 4
+   - **Procedimiento:**  ``
+   ```sql
+   ```
+   5. query 5
+   - **Procedimiento:**  ``
+   ```sql
+   ```
