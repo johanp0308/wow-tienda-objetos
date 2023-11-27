@@ -1,4 +1,4 @@
-DROP DATABASE wowShop;
+DROP DATABASE IF EXISTS wowShop;
 CREATE DATABASE wowShop;
 USE wowShop;
 
@@ -24,7 +24,7 @@ CREATE TABLE object(
     type_object ENUM('BlizzObject','at a distance','Trinket','bag','head','shirt','waist','neck','finger','two hands','shield','back','shoudler','right hand','left hand','hands','dolls','feet','tabard','torso','a hand','consumable') NOT NULL,
     level_object INT NOT NULL,
     category ENUM('poor','common','rare','queer','epic','legendary','artifact') NOT NULL,
-    id_class INT NULL,
+    id_class INT NULL
 );
 
 ALTER TABLE object
