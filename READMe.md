@@ -67,7 +67,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
 - value (double)
 
 11. buy
-- id_buy (VARCHAR(30) PK)
+- id_buy (INT PK)
 - user_name (VARCHAR(20) FK)
 - id_object (VARCHAR(50) FK)
 - token_account (VARCHAR(50) FK)
@@ -237,14 +237,61 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```
 
 2. Table: `faction`
+
    CRUD:
    CREATE - UPDATE
+   - **Procedimiento:** `create_faction`
+   - **Parametro:** `IN in_id INT,IN in_faction_name VARCHAR(20)`
       ```sql
-      
+      DROP PROCEDURE IF EXISTS create_faction;
+      DELIMITER //
+      CREATE PROCEDURE create_faction(
+         IN in_id INT,
+         IN in_faction_name VARCHAR(20)
+      )
+      BEGIN
+         DECLARE EXIT HANDLER FOR SQLEXCEPTION
+         BEGIN
+            ROLLBACK;
+            SELECT 'An error has occurred' as Message;
+         END;
+
+         START TRANSACTION;
+
+         INSERT INTO faction (id, faction_name) 
+         VALUES (in_id, in_faction_name)
+         ON DUPLICATE KEY UPDATE 
+            faction_name = in_faction_name;
+
+         COMMIT;
+         SELECT 'Stored data' as Message;
+      END //
+      DELIMITER ;      
       ```
    DELETE
-      ```sql
+   - **Procedimiento:** `delete_faction`
+   - **Parametros:** `IN in_id_faction INT`
+         ```sql
+      DROP PROCEDURE IF EXISTS delete_faction;
+      DELIMITER //
+      CREATE PROCEDURE delete_faction(
+         IN in_id_faction INT
+      )
+      BEGIN
+         DECLARE EXIT HANDLER FOR SQLEXCEPTION
+         BEGIN
+            ROLLBACK;
+            SELECT 'An error has occurred' as Message;
+         END;
 
+         START TRANSACTION;
+
+         DELETE FROM faction f
+         WHERE f.id = in_id_faction;
+
+         COMMIT;
+      END //
+      DELIMITER ;
       ```
    SELECT
       ```sql
@@ -271,7 +318,22 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```sql
    ```
 3. Table: `buy`
+   
    CRUD:
+
+   CREATE UPDATE:
+   - **Procedimiento:** ``
+   ```sql
+   
+   ```
+
+   DELETE:
+   - **Procedimiento:** ``
+   ```sql
+   ```
+
+   SELECT:
+   - **Procedimiento:** ``
    ```sql
    ```
    1. query 1
