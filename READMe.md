@@ -97,14 +97,101 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
 
 1. Table: `object`
    CRUD:
+   CREATE and UPDATE
+   - **Procedimiento:** `create_object`
    ```sql
-   -- CREATE
-   
+   -- CREATE, UPDATE
+   DROP PROCEDURE IF EXISTS create_object;
+   DELIMITER //
+   CREATE PROCEDURE create_object(
+      in $id_object VARCHAR(50),
+      in $name_object VARCHAR(50),
+      in $type_object ENUM('BlizzObject','at a distance','Trinket','bag','head','shirt','waist','neck','finger','two hands','shield','back','shoudler','right hand','left hand','hands','dolls','feet','tabard','torso','a hand','consumable'),
+      in $level_object INT,
+      in $category enum('poor','common','rare','queer','epic','legendary','artifact'),
+      in $id_class INT
+   )
+   BEGIN
+      DECLARE var_id_object VARCHAR(50);
+      SET @object_var = CONCAT('',$id_object,'');
 
+      SELECT o.id_object INTO var_id_object 
+      FROM object o
+      WHERE o.id_object LIKE @object_var;
 
+      IF var_id_object IS NULL
+      THEN
+         INSERT INTO object
+         (id_object,name_object,type_object,level_object,category,id_class) 
+         VALUES ($id_object,$name_object,$type_object,$level_object,$category,$id_class);
+      ELSE   
+         UPDATE object
+         SET 
+               name_object = $name_object,
+               type_object = $type_object,
+               level_object = $level_object,
+               category = $category,
+               id_class = $id_class
+         WHERE id_object = var_id_object;
+
+      END IF;
+   END //
+   DELIMITER ;
    ```
+
+   DELETE
+     - **Procedimiento:** `delete_object_cascade`
+     - **Parametros:** `IN i_id_object VARCHAR(50)`
+     ```sql
+     DROP PROCEDURE IF EXISTS delete_object_cascade;
+     DELIMITER //
+     CREATE PROCEDURE delete_object_cascade(IN i_id_object VARCHAR(50))
+     BEGIN
+        DECLARE idObject VARCHAR(50);
+
+        DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+           ROLLBACK;
+           SELECT 'An error occurred' as Message;
+        END;
+
+        START TRANSACTION;
+
+        SELECT o.id_object INTO idObject FROM object o WHERE o.id_object = i_id_object;
+
+        IF idObject IS NOT NULL 
+        THEN
+           DELETE FROM stats_object so
+           WHERE so.id_object = idObject;
+
+           DELETE FROM locker_object lo
+           WHERE lo.id_object = idObject;
+
+           DELETE FROM buy b
+           WHERE b.id_object = idObject;
+
+           DELETE FROM catalogue c
+           WHERE c.id_object = idObject;
+
+           DELETE FROM object o
+           WHERE o.id_object = idObject;
+        ELSE
+           SELECT 'Object not Found';
+        END IF;
+
+        COMMIT;
+
+     END //
+     DELIMITER ;
+     ```
+
+   SELECT
+      ```sql
+      SELECT * FROM object;
+      ```
    1. Consigue todos los objetos de una clase.
    - **Procedimiento:**  `getAll_object_by_class`
+   - **Parametros:** `class`
    example:
    ```sql
     SELECT *
@@ -131,37 +218,55 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    FROM object o
    ORDER BY o.level_object; 
    ```
-   4. Obtener el objeto cuya categoría ha sido comprada
+   4. Obtener las categorias de los objetos que han sido comprados
    - **Procedimiento:**  ``
    ```sql
-
+    SELECT o.category, COUNT(*) as count
+    FROM object o
+    WHERE o.id_object = ANY(SELECT b.id_object FROM buy b)
+    GROUP BY o.category;
    ```
-   5. Obtain items with your class, race and faction
-   - **Procedimiento:**  ``
+   5. Obténer id de los objetos con ssu clase, raza y facción.
+   - **Procedimiento:**  `getAll_object_class_race_faction`
    ```sql
+    SELECT o.id_object, o.name_object, c.class, r.race, f.faction_name 
+    FROM object o,class c, race r, faction f
+    WHERE o.id_class = c.class_id
+    AND c.race_id = r.id
+    AND r.faction_id = f.id;
    ```
 
 2. Table: `faction`
    CRUD:
-   ```sql
-   ```
+   CREATE - UPDATE
+      ```sql
+      
+      ```
+   DELETE
+      ```sql
+
+      ```
+   SELECT
+      ```sql
+      SELECT * FROM faction
+      ```
    1. query 1
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -173,19 +278,19 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -197,19 +302,19 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -221,19 +326,19 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -245,19 +350,19 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -269,19 +374,19 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -293,19 +398,19 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -317,19 +422,19 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -341,19 +446,19 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -365,19 +470,19 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -389,19 +494,19 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -413,19 +518,19 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -437,19 +542,19 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-   2. query 2
+   1. query 2
    - **Procedimiento:**  ``
    ```sql
    ```
-   3. query 3
+   1. query 3
    - **Procedimiento:**  ``
    ```sql
    ```
-   4. query 4
+   1. query 4
    - **Procedimiento:**  ``
    ```sql
    ```
-   5. query 5
+   1. query 5
    - **Procedimiento:**  ``
    ```sql
    ```
