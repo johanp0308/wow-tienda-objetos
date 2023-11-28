@@ -40,14 +40,12 @@ ADD CONSTRAINT PK_faction PRIMARY KEY (id),
 ADD CONSTRAINT UQ_faction UNIQUE (faction_name);
 
 CREATE TABLE buy(
-    id_buy VARCHAR(30) NOT NULL,
+    id_buy INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_name VARCHAR(20) NOT NULL,
     id_object VARCHAR(50) NOT NULL,
     token_account VARCHAR(50) NOT NULL
 );
 
-ALTER TABLE buy
-ADD CONSTRAINT PK_buy PRIMARY KEY (id_buy);
 
 CREATE TABLE stats_object(
     id_stats_object INT NOT NULL,
@@ -111,7 +109,7 @@ ADD CONSTRAINT PK_user PRIMARY KEY (email);
 
 CREATE TABLE locker_object(
     id_locker INT NOT NULL,
-    id_object INT NOT NULL
+    id_object VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE catalogue(

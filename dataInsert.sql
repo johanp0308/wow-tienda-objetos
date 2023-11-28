@@ -214,3 +214,10 @@ INSERT INTO inventory(id_inventory,id_character_wow,id_object,amount) VALUES(2,3
 INSERT INTO inventory(id_inventory,id_character_wow,id_object,amount) VALUES(3,5,'platinumchestplate023',3);
 INSERT INTO inventory(id_inventory,id_character_wow,id_object,amount) VALUES(4,7,'helm021',2);
 INSERT INTO inventory(id_inventory,id_character_wow,id_object,amount) VALUES(5,9,'energyfood015',8);
+
+
+INSERT INTO buy(id_buy,user_name,id_object,token_account) VALUES(1,'john_doe','elixir013','token123');
+INSERT INTO buy(id_buy,user_name,id_object,token_account) VALUES(2,'jane_smith','masterbow018','token456');
+INSERT INTO buy(id_buy,user_name, id_object, token_account) VALUES(3,'bob_miller','royalbag019','tokendef');
+INSERT INTO buy(id_buy,user_name,id_object,token_account) VALUES(4,'alice_jones','healthpotion011','tokenabc');
+INSERT INTO buy(id_buy,user_name,id_object,token_account) VALUES(5,'admin_user','royalbag019','token789');

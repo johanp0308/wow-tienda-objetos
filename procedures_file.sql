@@ -8,7 +8,7 @@ DELIMITER //
 CREATE PROCEDURE create_object(
     in $id_object VARCHAR(50),
     in $name_object VARCHAR(50),
-    in $type_object ENUM('BlizzObject','at a distance','Trinket','bag','head','shirt','waist','neck','finger','two hands','shield','back','shoudler','right hand','left hand','hands','dolls','feet','tabard','torso','a hand','consumable'),
+    in $type_object ENUM('BlizzObject','at a distance','Trinket','bag','head','shirt','waist','neck','finger','two hands','shield','back','shoulder','right hand','left hand','hands','dolls','feet','tabard','torso','a hand','consumable'),
     in $level_object INT,
     in $category enum('poor','common','rare','queer','epic','legendary','artifact'),
     in $id_class INT
@@ -157,23 +157,94 @@ DELIMITER ;
 -- FACTION_______________________________________________________
 -- CRUD________
 -- CREATE UPDATE
-DROP PROCEDURE IF EXISTS create_faction
-
+DROP PROCEDURE IF EXISTS create_faction;
 DELIMITER //
 CREATE PROCEDURE create_faction(
     IN in_id INT,
     IN in_faction_name VARCHAR(20)
 )
 BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'An error has occurred' as Message;
+    END;
+
+    START TRANSACTION;
+
     INSERT INTO faction (id, faction_name) 
     VALUES (in_id, in_faction_name)
     ON DUPLICATE KEY UPDATE 
         faction_name = in_faction_name;
 
+    COMMIT;
+    SELECT 'Stored data' as Message;
 END //
 DELIMITER ;
 
+-- DELETE
+DROP PROCEDURE IF EXISTS delete_faction;
+DELIMITER //
+CREATE PROCEDURE delete_faction(
+    IN in_id_faction INT
+)
+BEGIN
 
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'An error has occurred' as Message;
+    END;
+
+    START TRANSACTION;
+
+    DELETE FROM faction f
+    WHERE f.id = in_id_faction;
+
+    COMMIT;
+END //
+DELIMITER ;
 -- ________CRUD
-
 -- _______________________________________________________FACTION
+
+-- BUY___________________________________________________________
+-- CRUD_______
+-- CREATE UPDATE
+DROP PROCEDURE IF EXISTS create_buy;
+DELIMITER //
+CREATE PROCEDURE create_buy(
+    IN id_buy INT
+    IN in_id_object VARCHAR(50),
+    IN token_account,
+    IN in_name_account
+)
+BEGIN
+    DECLARE $object_id VARCHAR(50);
+    DECLARE $msg_error VARCHAR(40);
+    DECLARE $value_object DOUBLE(8,2);
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Error when inserting purchase information.';
+    END;
+
+    SELECT c.id_object , c.value_wc INTO $object_id, $value_object
+    FROM catalogue c
+    WHERE c.id_object = in_id_object;
+
+    IF $object IS NOT NULL
+    THEN
+        INSERT INTO buy(user_name,id_object,token_accoun)
+        VALUES ()
+    END IF;
+
+    COMMIT;
+END //
+DELIMITER ;
+
+describe catalogue;
+-- _______CRUD
+
+
+-- ___________________________________________________________BUY
