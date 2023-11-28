@@ -194,3 +194,23 @@ VALUES (8, 79.99, 'royalbag019'); -- Bolsa Real
 
 
 
+INSERT INTO locker_object(id_locker,id_object) VALUES(1,'elixir013'); -- john_doe
+INSERT INTO locker_object(id_locker,id_object) VALUES(2,'masterbow018'); -- jane_smith
+INSERT INTO locker_object(id_locker,id_object) VALUES(3,'naturestaff020'); -- admin_user
+INSERT INTO locker_object(id_locker,id_object) VALUES(4,'healthpotion011'); -- alice_jones
+INSERT INTO locker_object(id_locker,id_object) VALUES(5,'royalbag019'); -- bob_miller
+
+-- stats_object
+INSERT INTO stats_object(id_stats_object,id_object,id_stats,value) VALUES(1,'elixir013',11,500);
+INSERT INTO stats_object(id_stats_object,id_object,id_stats,value) VALUES(2,'masterbow018',10,200);
+INSERT INTO stats_object(id_stats_object,id_object,id_stats,value) VALUES(3,'naturestaff020',11,600);
+INSERT INTO stats_object(id_stats_object,id_object,id_stats,value) VALUES(4,'healthpotion011',13,200);
+INSERT INTO stats_object(id_stats_object,id_object,id_stats,value) VALUES(5,'royalbag019',4,1780);
+
+
+-- inventory
+INSERT INTO inventory(id_inventory,id_character_wow,id_object,amount) VALUES(1,1,'walkerboots026',2);
+INSERT INTO inventory(id_inventory,id_character_wow,id_object,amount) VALUES(2,3,'shadowcape024',1);
+INSERT INTO inventory(id_inventory,id_character_wow,id_object,amount) VALUES(3,5,'platinumchestplate023',3);
+INSERT INTO inventory(id_inventory,id_character_wow,id_object,amount) VALUES(4,7,'helm021',2);
+INSERT INTO inventory(id_inventory,id_character_wow,id_object,amount) VALUES(5,9,'energyfood015',8);

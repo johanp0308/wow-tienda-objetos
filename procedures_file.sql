@@ -1,4 +1,3 @@
-use wowShop;
 
 -- OBJECT _________________________________________________
 
@@ -7,27 +6,89 @@ SELECT * FROM class;
 DROP PROCEDURE IF EXISTS create_object;
 DELIMITER //
 CREATE PROCEDURE create_object(
-   in $id_object VARCHAR(50),
-   in $name_object VARCHAR(50),
-   in $type_object ENUM('BlizzObject','at a distance','Trinket','bag','head','shirt','waist','neck','finger','two hands','shield','back','shoudler','right hand','left hand','hands','dolls','feet','tabard','torso','a hand','consumable'),
-   in $level_object INT,
-   in $category enum('poor','common','rare','queer','epic','legendary','artifact'),
-   in $id_class INT
+    in $id_object VARCHAR(50),
+    in $name_object VARCHAR(50),
+    in $type_object ENUM('BlizzObject','at a distance','Trinket','bag','head','shirt','waist','neck','finger','two hands','shield','back','shoudler','right hand','left hand','hands','dolls','feet','tabard','torso','a hand','consumable'),
+    in $level_object INT,
+    in $category enum('poor','common','rare','queer','epic','legendary','artifact'),
+    in $id_class INT
 )
 BEGIN
-   IF $id_object IS NULL
-   THEN
-      INSERT INTO object
-      (id_object,name_object,type_object,level_object,category,id_class)
-      VALUES ($id_object,$name_object,$type_object,$,'epic',1);
-   ELSE THEN
+    DECLARE var_id_object VARCHAR(50);
+    SET @object_var = CONCAT('',$id_object,'');
 
+    DECLARE exit HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'An error has occurred'
+    END;
+
+    SELECT o.id_object INTO var_id_object 
+    FROM object o
+    WHERE o.id_object LIKE @object_var;
+
+    IF var_id_object IS NULL
+    THEN
+        INSERT INTO object
+        (id_object,name_object,type_object,level_object,category,id_class) 
+        VALUES ($id_object,$name_object,$type_object,$level_object,$category,$id_class);
+    ELSE   
+        UPDATE object
+        SET 
+            name_object = $name_object,
+            type_object = $type_object,
+            level_object = $level_object,
+            category = $category,
+            id_class = $id_class
+        WHERE id_object = var_id_object;
+
+    END IF;
+
+    COMMIT;
 END //
 DELIMITER ;
-CALL create_object('chestr1002','Wall of the fallen','torso',80,'epic',1);
+-- DELETE_________ 
+DROP PROCEDURE IF EXISTS delete_object_cascade;
+DELIMITER //
+CREATE PROCEDURE delete_object_cascade(IN i_id_object VARCHAR(50))
+BEGIN
+    DECLARE idObject VARCHAR(50);
 
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'An error occurred' as Message;
+    END;
 
-DROP PROCEDURE IF EXISTS PROCEDURE getAll_object_by_class;
+    START TRANSACTION;
+
+    SELECT o.id_object INTO idObject FROM object o WHERE o.id_object = i_id_object;
+
+    IF idObject IS NOT NULL 
+    THEN
+        DELETE FROM stats_object so
+        WHERE so.id_object = idObject;
+
+        DELETE FROM locker_object lo
+        WHERE lo.id_object = idObject;
+
+        DELETE FROM buy b
+        WHERE b.id_object = idObject;
+
+        DELETE FROM catalogue c
+        WHERE c.id_object = idObject;
+
+        DELETE FROM object o
+        WHERE o.id_object = idObject;
+    ELSE
+        SELECT 'Object not Found';
+    END IF;
+
+    COMMIT;
+END //
+DELIMITER ;
+-- _______CRUD
+DROP PROCEDURE IF EXISTS getAll_object_by_class;
 DELIMITER //
 CREATE PROCEDURE getAll_object_by_class(in class VARCHAR(30))
 BEGIN
@@ -40,8 +101,6 @@ BEGIN
    );
 END //
 DELIMITER ;
-CALL getAll_object_by_class('Shaman');
-
 DROP PROCEDURE IF EXISTS getAll_category_and_type;
 DELIMITER //
 CREATE PROCEDURE getAll_category_and_type()
@@ -53,9 +112,6 @@ BEGIN
    GROUP BY o.category;
 END //
 DELIMITER ;
-CALL getAll_category_and_type();
-
-
 DROP PROCEDURE IF EXISTS getAll_object_order_by_level;
 DELIMITER //
 CREATE PROCEDURE getAll_object_order_by_level()
@@ -65,9 +121,6 @@ BEGIN
    ORDER BY o.level_object;
 END //
 DELIMITER ;
-CALL getAll_object_order_by_level();
-
-
 DROP PROCEDURE IF EXISTS getAll_object_order_by_level;
 DELIMITER //
 CREATE PROCEDURE getAll_object_order_by_level()
@@ -77,8 +130,50 @@ BEGIN
    ORDER BY o.level_object;
 END //
 DELIMITER ;
-CALL getAll_object_order_by_level();
+DROP PROCEDURE IF EXISTS getAll_object_category_buy;
+DELIMITER //
+CREATE PROCEDURE getAll_object_category_buy()
+BEGIN
+    SELECT o.category, COUNT(*) as count
+    FROM object o
+    WHERE o.id_object = ANY(SELECT b.id_object FROM buy b)
+    GROUP BY o.category;
+END //
+DELIMITER ;
 
-DESCRIBE object;
-
+DROP PROCEDURE IF EXISTS getAll_object_class_race_faction;
+DELIMITER //
+CREATE PROCEDURE getAll_object_class_race_faction()
+BEGIN
+    SELECT o.id_object, o.name_object, c.class, r.race, f.faction_name 
+    FROM object o,class c, race r, faction f
+    WHERE o.id_class = c.class_id
+    AND c.race_id = r.id
+    AND r.faction_id = f.id;
+END //
+DELIMITER ;
 -- ________________________________________________________OBJECT
+
+-- FACTION_______________________________________________________
+-- CRUD________
+-- CREATE UPDATE
+DROP PROCEDURE IF EXISTS create_faction
+
+DELIMITER //
+CREATE PROCEDURE create_faction(
+    IN in_id INT,
+    IN in_faction_name VARCHAR(20)
+)
+BEGIN
+    INSERT INTO faction (id, faction_name) 
+    VALUES (in_id, in_faction_name)
+    ON DUPLICATE KEY UPDATE 
+        faction_name = in_faction_name;
+
+END //
+DELIMITER ;
+
+
+-- ________CRUD
+
+-- _______________________________________________________FACTION

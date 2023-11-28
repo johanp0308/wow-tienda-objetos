@@ -134,7 +134,7 @@ ADD CONSTRAINT PK_locker PRIMARY KEY (id_locker);
 CREATE TABLE race(
     id INT NOT NULL,
     race VARCHAR(30) NOT NULL,
-    faction_id INT NOT NULL
+    faction_id INT NULL
 );
 
 ALTER TABLE race
@@ -190,10 +190,5 @@ ADD CONSTRAINT FK_race_to_factio FOREIGN KEY (faction_id) REFERENCES faction(id)
 
 ALTER TABLE class
 ADD CONSTRAINT FK_class_to_race FOREIGN KEY (race_id) REFERENCES race(id);
-
-
-
-
-
 
 
