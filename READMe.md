@@ -672,61 +672,266 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   5. a
+   5. 
    - **Procedimiento:**  ``
    ```sql
+   DROP PROCEDURE IF EXISTS objet_more_statist_by_category_epic;
+   DELIMITER //
+   CREATE PROCEDURE name()
+   BEGIN
+      SELECT tabla_stats.id_object, tabla_stats.average
+      FROM (
+         SELECT so.id_object as id_object, AVG(so.value) as average
+         FROM stats_object so
+         JOIN object o ON so.id_object = o.id_object
+         WHERE o.category LIKE 'epic'
+         GROUP BY so.id_object
+      )  as tabla_stats
+      WHERE tabla_stats.average >= ALL(
+         SELECT AVG(so.value) as average
+         FROM stats_object so
+         JOIN object o ON so.id_object = o.id_object
+         WHERE o.category LIKE 'epic'
+         GROUP BY so.id_object
+      );
+   END //
+   DELIMITER ;
    ```
 5. Table: `inventory`
-   CRUD:
+   CREATE:
    ```sql
+   INSERT INTO inventory(id_inventory,id_character_wow,id_object,amount) VALUES(1,1,'walkerboots026',2);
    ```
-   1. query 1
+   UPDATE:
+   ```sql
+   UPDATE inventory
+   SET
+      id_character_wow = 1,
+      id_object = 'qwd45',
+      amount = 20
+   WHERE id_inventory = 2;
+   ```
+   DELETE:
+   ```sql
+   DELETE FROM inventory WHERE id_inventory = 2;
+   ```
+   SELECT:
+   ```sql
+   SELECT * FROM inventory;
+   ```
+   1. Todos los objetos de un personaje en su inventario
+   - **Procedimiento:**  `character_with_object_most_powerful`
+   - **Parametro:** `IN userName VARCHAR(50)`
+   ```sql
+   DROP PROCEDURE IF EXISTS character_with_object_most_powerful;
+   DELIMITER //
+   CREATE PROCEDURE character_with_object_most_powerful(IN userName VARCHAR(50))
+   BEGIN
+      SELECT o.*
+      FROM inventory inv
+      JOIN character_wow ch ON inv.id_character_wow = ch.id_character_wow
+      JOIN object o ON inv.id_object = o.id_object
+      WHERE ch.user_name LIKE userName;
+   END //
+   DELIMITER ;
+   ```
+   2. Personajes con un objeto especifico en el inventario.
    - **Procedimiento:**  ``
    ```sql
+   DROP PROCEDURE IF EXISTS object_in_user;
+   DELIMITER //
+   CREATE PROCEDURE object_in_user()
+   BEGIN
+      SELECT ch.user_name
+      FROM character_wow ch
+      WHERE ch.id_character_wow IN (
+         SELECT id_character_wow
+         FROM inventory
+         WHERE id_object = 'walkerboots026'
+      );
+   END //
+   DELIMITER ;
    ```
-   1. query 2
-   - **Procedimiento:**  ``
+
+   3. Cantida Objetos de inventario pero por personaje en cuenta.
+   - **Procedimiento:**  `object_by_account_by_character`
    ```sql
+   DROP PROCEDURE IF EXISTS object_by_account_by_character;
+   DELIMITER //
+   CREATE PROCEDURE object_by_account_by_character()
+   BEGIN
+      SELECT a.user_name, ch.name_character_wow, COUNT(inv.id_object)
+      FROM account a, character_wow ch, inventory inv
+      WHERE a.user_name = ch.user_name AND ch.id_character_wow = inv.id_character_wow
+      GROUP BY a.user_name, ch.name_character_wow;
+   END //
+   DELIMITER ;
    ```
-   1. query 3
-   - **Procedimiento:**  ``
+   4. Organizar objetos por categoria de un personaje.
+   - **Procedimiento:** `orfanized_object_category_character`
+   - **Parametros:** `IN name_character VARCHAR(30)`
    ```sql
+   DROP PROCEDURE IF EXISTS orfanized_object_category_character;
+   DELIMITER //
+   CREATE PROCEDURE orfanized_object_category_character(IN name_character VARCHAR(30))
+   BEGIN
+      SELECT o.category, COUNT(o.id_object) as objects
+      FROM object o
+      JOIN inventory inv ON o.id_object = inv.id_object
+      WHERE inv.id_character_wow = (
+         SELECT id_character_wow
+         FROM character_wow
+         WHERE name_character_wow = name_character
+      )
+      GROUP BY o.category;
+   END //
+   DELIMITER ;
    ```
-   1. query 4
-   - **Procedimiento:**  ``
+   5. Objetos de los inventario de los personajes que estan a la venta y su valor.
+   - **Procedimiento:**  `object_in_catalogue_and_value`
    ```sql
-   ```
-   1. query 5
-   - **Procedimiento:**  ``
-   ```sql
+   DROP PROCEDURE IF EXISTS object_in_catalogue_and_value;
+   DELIMITER //
+   CREATE PROCEDURE object_in_catalogue_and_value()
+   BEGIN
+   SELECT o.name_object,(
+      SELECT c.value_wc 
+      FROM catalogue c 
+      WHERE c.id_object = o.id_object
+      ) AS value_wc
+   FROM object o
+   JOIN inventory inv ON o.id_object = inv.id_object;
+   END //
+   DELIMITER ;
    ```
 6. Table: `statistics`
-   CRUD:
+   CREATE:
    ```sql
+   INSERT INTO statistics (id_statistics, statistics_type) VALUES (15, 'Parry');  
    ```
-   1. query 1
+
+   UPDATE:
+   ```sql
+   UPDATE statistics
+   SET
+      statistics_type = 'power_crazy'
+   WHERE id_statistics = 1;
+   ```
+
+   DELETE:
+   ```sql
+   DELETE FROM statistics WHERE id_statistics = 1;
+   ```
+
+   SELECT:
+   ```sql
+   SELECT * FROM statistics;
+   ```
+   1. Estadisticas que no tienen items.
+   - **Procedimiento:**  `statistics_not_object`
+   ```sql
+   DROP PROCEDURE IF EXISTS statistics_not_object;
+   DELIMITER //
+   CREATE PROCEDURE statistics_not_object()
+   BEGIN
+      SELECT s.statistics_type
+      FROM statistics s
+      WHERE s.id_statistics NOT IN (
+         SELECT so.id_stats 
+         FROM stats_object so
+      );
+   END //
+   DELIMITER ;
+   ```
+   2. Cantidad de veces que se uso una estadisitica en un objeto.
    - **Procedimiento:**  ``
    ```sql
+   DROP PROCEDURE IF EXISTS statis_count_use;
+   DELIMITER //
+   CREATE PROCEDURE statis_count_use()
+   BEGIN
+      SELECT
+         s.statistics_type,
+         (
+               SELECT COUNT(so.id_stats) 
+               FROM stats_object so 
+               WHERE so.id_stats = s.id_statistics
+         ) AS count_id_statistics
+      FROM
+         statistics s;
+   END //
+   DELIMITER ;
    ```
-   1. query 2
+   3. Estadistica promedio de los personajes con objetos en su inventario
+   - **Procedimiento:**  `statistics_not_object`
+   ```sql
+   DROP PROCEDURE IF EXISTS statistics_not_object;
+   DELIMITER //
+   CREATE PROCEDURE statistics_not_object()
+   BEGIN
+      SELECT cw.name_character_wow AS character_name,AVG(so.value) AS average_stats
+      FROM character_wow cw
+      JOIN inventory inv ON cw.id_character_wow = inv.id_character_wow
+      JOIN object o ON inv.id_object = o.id_object
+      JOIN stats_object so ON o.id_object = so.id_object
+      GROUP BY cw.name_character_wow;
+   END //
+   DELIMITER ;
+   ```
+   4. Estadisiticas generales de un personaje con respecto a su inventario.
    - **Procedimiento:**  ``
    ```sql
+   DROP PROCEDURE IF EXISTS statistics_not_object;
+   DELIMITER //
+   CREATE PROCEDURE statistc_general_for_character()
+   BEGIN
+      SELECT 
+         cw.name_character_wow AS character_name,
+         COUNT(inv.id_object) AS items,
+         SUM(so.value) AS total_stats_value,
+         AVG(so.value) AS average_stats_value
+      FROM character_wow cw
+      LEFT JOIN inventory inv ON cw.id_character_wow = inv.id_character_wow
+      LEFT JOIN stats_object so ON inv.id_object = so.id_object
+      GROUP BY cw.name_character_wow;
+   END //
+   DELIMITER ;
    ```
-   1. query 3
-   - **Procedimiento:**  ``
+   5. Estadisticas por nombre
+   - **Procedimiento:**  `statistic_by_name`
    ```sql
-   ```
-   1. query 4
-   - **Procedimiento:**  ``
-   ```sql
-   ```
-   1. query 5
-   - **Procedimiento:**  ``
-   ```sql
+   DROP PROCEDURE IF EXISTS statistic_by_name;
+   DELIMITER //
+   CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+   BEGIN
+      SELECT * 
+      FROM statistics s
+      WHERE s.statistics_type = name;
+   END //
+   DELIMITER ;
    ```
 7. Table: `character_wow`
-   CRUD:
+   CREATE:
    ```sql
+   INSERT INTO character_wow (id_character_wow, user_name, id_class, level, name_character_wow) VALUES (7, 'alice_jones', 4, 90, 'Baine');
+   ```
+   UPDATE:
+   ```sql
+   UPDATE character_wow
+   SET 
+      user_name = 'Pamplinas',
+      id_class = 1,
+      level = 56,
+      name_character_wow = ''
+   WHERE id_character_wow = 7
+   ```
+   DELETE:
+   ```sql
+   DELETE FROM character_wow WHERE id_character_wow = 7;
+   ```
+   SELECT:
+   ```sql
+   SELECT * FROM character_wow;
    ```
    1. query 1
    - **Procedimiento:**  ``
@@ -749,8 +954,27 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```sql
    ```
 8. Table: `account`
-   CRUD:
+   CREATE:
    ```sql
+   INSERT INTO account (user_name, password_account, email, wow_currency, token_account) VALUES ('admin_user', 'adminpass123', 'admin@example.com', 200.0, 'token789');
+   ```
+   UPDATE:
+   ```sql
+   UPDATE account
+   SET 
+      password_account = 'qwerty',
+      email = 'admin@example.com',
+      wow_currency = 800.0,
+      token_account = 'token7897'
+   WHERE user_name = 'admin_user';
+   ```
+   DELETE:
+   ```sql
+   DELETE FROM account WHERE user_name = 'admin_user';
+   ```
+   SELECT:
+   ```sql
+   SELECT * FROM account;
    ```
    1. query 1
    - **Procedimiento:**  ``
@@ -773,9 +997,29 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```sql
    ```
 9.  Table: `user_account`
-   CRUD:
+   CREATE:
    ```sql
+   INSERT INTO user_account (email, password_user) VALUES ('bob.miller@example.com', 'letmein2022');
    ```
+
+   UPDATE:
+   ```sql
+   UPDATE user_account
+   SET 
+      password_user = '123'
+   WHERE email = 'bob.miller@example.com';
+   ```
+
+   DELETE:
+   ```sql
+   DELETE FROM user_account WHERE Hemail = 'bob.miller@example.com';
+   ```
+
+   SELECT:
+   ```sql
+   SELECT * FROM user_account;
+   ```
+
    1. query 1
    - **Procedimiento:**  ``
    ```sql
@@ -797,8 +1041,26 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```sql
    ```
 10. Table: `locker_object`
-   CRUD:
+   CREATE:
    ```sql
+   INSERT INTO locker_object(id_locker,id_object) VALUES(1,'elixir013'); 
+   ```
+
+   UPDATE:
+   ```sql
+   UPDATE locker_object
+   SET 
+      id_object = 1,
+      id_object = 2
+   WHERE id_locker = 1 AND id_object =  2;
+   ```
+   DELETE:
+   ```sql
+   DELETE FROM locker_object WHERE id_locker = 1 AND id_object =  2;
+   ```
+   SELECT:
+   ```sql
+   SELECT * FROM locker_object; 
    ```
    1. query 1
    - **Procedimiento:**  ``
@@ -821,8 +1083,25 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```sql
    ```
 11. Table: `catalogue`
-   CRUD:
+   CREATE:
    ```sql
+   INSERT INTO catalogue (id_producto, value_wc, id_object);
+   ```
+   UPDATE:
+   ```sql
+   UPDATE catalogue
+   SET 
+      value_wc = 7,
+      id_object = 'qwerty78'
+   WHERE id_producto =1;
+   ```
+   DELETE:
+   ```sql
+   DELETE FROM catalogue WHERE id_producto =1;
+   ```
+   SELECT:
+   ```sql
+   SELECT * FROM catalogue;
    ```
    1. query 1
    - **Procedimiento:**  ``
@@ -845,8 +1124,26 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```sql
    ```
 12. Table: `locker`
-   CRUD:
+   CREATE:
    ```sql
+   INSERT INTO locker (id_locker, id_account) VALUES (2, 'jane_smith');
+   ```
+   UPDATE:
+   ```sql
+   UPDATE locker
+   SET 
+      id_account = 'pasp102'
+   WHERE id_locker =2;
+   ```
+   DELETE:
+   ```sql
+   DELETE FROM locker WHERE id_locker =7;
+
+   ```
+   SELECT:
+   ```sql
+   SELECT * FROM locker;
+
    ```
    1. query 1
    - **Procedimiento:**  ``
@@ -869,8 +1166,26 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```sql
    ```
 13. Table: `race`
-   CRUD:
+   CREATE:
    ```sql
+   INSERT INTO race (id, race, faction_id) VALUES (3, 'Tauren', 1);
+
+   ```
+   UPDATE:
+   ```sql
+   UPDATE race
+   SET 
+      race = 'Pachones',
+      faction_id = 2
+   WHERE id = 3;
+   ```
+   DELETE:
+   ```sql
+   DELETE FROM race WHERE id =3;
+   ```
+   SELECT:
+   ```sql
+   SELECT * FROM race;
    ```
    1. query 1
    - **Procedimiento:**  ``
@@ -893,8 +1208,25 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```sql
    ```
 14. Table: `class`
-   CRUD:
+   CREATE:
    ```sql
+   INSERT INTO class (class_id, race_id, class) VALUES (1, 1, 'Warrior');
+   ```
+   UPDATE:
+   ```sql
+   UPDATE class
+   SET 
+      race_id = 2,
+      class = 'Rogue'
+   WHERE id_producto =1;
+   ```
+   DELETE:
+   ```sql
+   DELETE FROM class WHERE class_id =1;
+   ```
+   SELECT:
+   ```sql
+   SELECT * FROM class;
    ```
    1. query 1
    - **Procedimiento:**  ``
