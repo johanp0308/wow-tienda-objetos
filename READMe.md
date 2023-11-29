@@ -297,86 +297,382 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
       ```sql
       SELECT * FROM faction
       ```
-   1. query 1
-   - **Procedimiento:**  ``
+   1. Cantidad de personajes de la faccion Horda que tienen un nivel superior a 60.
+   - **Procedimiento:**  `character_factio_horde_lvl_greater_60`
    ```sql
+   SELECT COUNT(*)
+   FROM character_wow c
+   WHERE c.id_character_wow IN(
+      SELECT ch.id_character_wow
+      FROM faction f
+      JOIN race r ON f.id = r.faction_id
+      JOIN class cl ON r.id = cl.race_id
+      JOIN character_wow ch ON cl.class_id = ch.id_class
+      WHERE f.faction_name LIKE 'Horde'
+      AND ch.level > 60
+   );
    ```
-   1. query 2
-   - **Procedimiento:**  ``
+   2. Nombre de la facción con el mayor numero de objetos disponibles en el catálogo
+   - **Procedimiento:**  `faction_max_object_catalogue`
    ```sql
+   DROP PROCEDURE IF EXISTS faction_max_object_catalogue;
+   DELIMITER //
+   CREATE PROCEDURE faction_max_object_catalogue()
+   BEGIN
+      SELECT f.faction_name
+      FROM faction f
+      WHERE f.id IN (
+         SELECT f.id
+         FROM catalogue c
+         JOIN object o ON c.id_object = o.id_object
+         JOIN class cl ON o.id_class = cl.class_id
+         JOIN race r ON cl.race_id = r.id
+         JOIN faction f ON r.faction_id = f.id
+         GROUP BY f.id
+         ORDER BY COUNT(*) DESC
+      );
+   END //
+   DELIMITER ;
    ```
-   1. query 3
-   - **Procedimiento:**  ``
+   3. Media del nivel de los personajes de la facción Alianza que tienen un objeto de tipo BlizzObject
+   - **Procedimiento:**  `avarage_lvl_alliance_with_object_blizz`
    ```sql
+   DROP PROCEDURE IF EXISTS avarage_lvl_alliance_with_object_blizz;
+   DELIMITER //
+   CREATE PROCEDURE avarage_lvl_alliance_with_object_blizz()
+   BEGIN
+      SELECT AVG(level)
+      FROM character_wow ch
+      WHERE ch.id_class IN(
+         SELECT cl.class_id
+         FROM faction f
+         JOIN race r ON f.id = r.faction_id
+         JOIN class cl ON r.id = cl.race_id
+         AND f.faction_name = 'alliance')
+      AND ch.id_character_wow IN (
+         SELECT inv.id_character_wow
+         FROM object o, inventory inv, character_wow cha
+         WHERE inv.id_character_wow = cha.id_character_wow
+         AND o.type_object = 'BlizzObject'
+      );
+   END //
+   DELIMITER ;
    ```
-   1. query 4
-   - **Procedimiento:**  ``
+   4. Nombre de la faccion con el menor numero de objetos de categoria rare.
+   - **Procedimiento:**  `faction_greate_object_rare`
    ```sql
+   DROP PROCEDURE IF EXISTS faction_greate_object_rare;
+   DELIMITER //
+   CREATE PROCEDURE faction_greate_object_rare()
+   BEGIN
+      SELECT f.faction_name
+      FROM faction f
+      WHERE f.id IN (
+         SELECT f.id
+         FROM object o
+         JOIN class cl ON o.id_class = cl.class_id
+         JOIN race r ON cl.race_id = r.id
+         JOIN faction f ON r.faction_id = f.id
+         WHERE o.category = 'rare'
+         GROUP BY f.id
+         ORDER BY COUNT(*) ASC
+      )
+      LIMIT 1;
+   END //
+   DELIMITER ;
    ```
-   1. query 5
+   5. Encuentra la facción con más personajes que hayan comprado objetos de la categoria `epic` o `legendary`  
    - **Procedimiento:**  ``
    ```sql
+   DROP PROCEDURE IF EXISTS faction_charact_buy_epic_legendary;
+   DELIMITER //
+   CREATE PROCEDURE faction_charact_buy_epic_legendary()
+   BEGIN
+      SELECT faction_object.faction_name
+      FROM (
+         SELECT f.faction_name as faction_name, COUNT(*) as count_object
+         FROM faction f
+         JOIN race r ON f.id = r.faction_id
+         JOIN class cl ON r.id = cl.race_id
+         JOIN object o ON cl.class_id = o.id_class
+         JOIN buy b ON o.id_object = b.id_object
+         GROUP BY f.faction_name
+         ORDER BY count_object ASC
+      ) as faction_object
+      LIMIT 1;
+   END //
+   DELIMITER ;
    ```
 3. Table: `buy`
    
    CRUD:
 
-   CREATE UPDATE:
+   CREATE:
    - **Procedimiento:** ``
    ```sql
-   
-   ```
+   DROP PROCEDURE IF EXISTS create_buy;
+   DELIMITER //
+   CREATE PROCEDURE create_buy(
+      IN in_id_object VARCHAR(50),
+      IN in_token_account VARCHAR(30),
+      IN in_name_account VARCHAR(20)
+   )
+   BEGIN
 
-   DELETE:
+      DECLARE var_object_id VARCHAR(50);
+      DECLARE var_value_object DOUBLE(8,2);
+
+      DECLARE var_user_valid VARCHAR(20);
+      
+      DECLARE EXIT HANDLER FOR SQLEXCEPTION
+      BEGIN
+         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Error when inserting purchase information.';
+      END;
+
+      SELECT c.id_object , c.value_wc INTO var_object_id, var_value_object
+      FROM catalogue c
+      WHERE c.id_object = in_id_object;
+
+      SELECT a.user_name INTO var_user_valid
+      FROM account a
+      WHERE a.user_name = in_name_account
+      AND a.token_account = in_token_account;
+
+      IF var_object_id IS NOT NULL AND var_user_valid IS NOT NULL
+      THEN
+         INSERT INTO buy(user_name,id_object,token_accoun)
+         VALUES (var_user_valid,in_id_object,in_token_account);
+      END IF;
+      COMMIT;
+   END //
+   DELIMITER ;
+   ```
+   UPDATE:
    - **Procedimiento:** ``
    ```sql
+   UPDATE buy b
+   SET 
+      b.user_name = 'userName',
+      b.id_object = 'qdwqwd54',
+      b.token_account = 'asdqw'
+   WHERE b.id_buy = 1;
+   ```
+****
+   DELETE:
+   ```sql
+   DELETE FROM buy b WHERE b.id_buy = 1;
    ```
 
    SELECT:
-   - **Procedimiento:** ``
    ```sql
+   SELECT * FROM buy;
    ```
-   1. query 1
+   1. La compra de un objeto mas cara.
+   - **Procedimiento:**  `object_buy_more_expnesive`
+   ```sql
+   DROP PROCEDURE IF EXISTS object_buy_more_expnesive;
+   DELIMITER //
+   CREATE PROCEDURE object_buy_more_expnesive()
+   BEGIN
+      SELECT b.*,c.value_wc
+      FROM buy b,catalogue c
+      WHERE b.id_object = c.id_object
+      AND c.value_wc >= ALL(
+         SELECT ca.value_wc
+         FROM catalogue ca
+         JOIN buy b ON ca.id_object = b.id_object
+      );
+   END //
+   DELIMITER ;
+   ```
+
+   2. Todas las compras de un Usuario.(Se usa el token de la compra)
+   - **Procedimiento:**  `buys_of_user_by_token`
+   - **Parametro:** `IN token_user VARCHAR(30)`
+   ```sql
+   DROP PROCEDURE IF EXISTS buys_of_user_by_token;
+   DELIMITER //
+   CREATE PROCEDURE buys_of_user_by_token(IN token_user VARCHAR(30))
+   BEGIN
+      SELECT b.*
+      FROM buy b
+      WHERE b.token_account = (
+         SELECT a.token_account
+         FROM account a
+         WHERE a.token_account = token_user
+      );
+   
+   END //
+   DELIMITER ;
+   ```
+   3. Compras de un determinado objeto por su identificador.
+   - **Procedimiento:**  `buys_by_object_id`
+   - **Parametro:** `IN object_id VARCHAR(50)`
+   ```sql
+   DROP PROCEDURE IF EXISTS buys_by_object_id;
+   DELIMITER //
+   CREATE PROCEDURE buys_by_object_id(IN object_id VARCHAR(50))
+   BEGIN
+      SELECT b.*
+      FROM buy b
+      WHERE b.id_object = (
+         SELECT id_object
+         FROM object
+         WHERE id_object = object_id
+      );
+   END //
+   DELIMITER ;
+   ```
+
+   4. Compras de objetos por tipo
+   - **Procedimiento:**  `buys_by_type_object`
+   - **Parametro:** `IN object_type VARCHAR(20)`
+   ```sql
+   DROP PROCEDURE IF EXISTS buys_by_type_object;
+   DELIMITER //
+   CREATE PROCEDURE buys_by_type_object(IN object_type VARCHAR(20))
+   BEGIN
+      SELECT b.*
+      FROM buy b
+      WHERE b.id_object IN(
+         SELECT id_object
+         FROM object
+         WHERE type_object = object_type
+      );
+   END //
+   DELIMITER ;
+   ```
+   5. El Objeto mas Comprado
    - **Procedimiento:**  ``
    ```sql
-   ```
-   1. query 2
-   - **Procedimiento:**  ``
-   ```sql
-   ```
-   1. query 3
-   - **Procedimiento:**  ``
-   ```sql
-   ```
-   1. query 4
-   - **Procedimiento:**  ``
-   ```sql
-   ```
-   1. query 5
-   - **Procedimiento:**  ``
-   ```sql
+   DROP PROCEDURE IF EXISTS object_most_purchase_item;
+   DELIMITER //
+   CREATE PROCEDURE object_most_purchase_item()
+   BEGIN
+      SELECT id_object, count_by
+      FROM (
+         SELECT b.id_object as id_object, COUNT(b.id_object) as count_by
+         FROM buy b
+         GROUP BY b.id_object
+         ORDER BY count_by DESC) as table_objects
+      WHERE count_by >= ALL(
+         SELECT COUNT(b.id_object) as count_by
+         FROM buy b
+         GROUP BY b.id_object
+         ORDER BY count_by DESC
+      );    
+   END //
+   DELIMITER ;
    ```
 4. Table: `stats_object`
+   
+   CREATE:
+   ```sql
+   INSERT INTO stats_object(id_stats_object,id_object,id_stats,value) VALUES(1,'elixir013',11,500);
+   ```
+
+   UPDATE:
+   ```sql
+   UPDATE stats_object
+   SET
+      id_object = 'acr23',
+      id_stats = 1,
+      value = 52.01
+   WHERE id_stats_object = 1;
+
+   ```
+   DELETE:
+   ```sql
+   DELETE FROM stats_object WHERE id_stats_object = 1;
+   ```
    CRUD:
    ```sql
    ```
-   1. query 1
+   1. Objeto con el mejor promedio de estadisticas.
+   - **Procedimiento:**  `better_average_statis_object`
+   ```sql
+   DROP PROCEDURE IF EXISTS better_average_statis_object;
+   DELIMITER //
+   CREATE PROCEDURE better_average_statis_object()
+   BEGIN
+      SELECT table_average.id_object, table_average.average_object
+      FROM (
+         SELECT so.id_object as id_object, AVG(VALUE) as average_object
+         FROM stats_object so
+         GROUP BY so.id_object) as table_average
+      WHERE table_average.average_object >= ALL(
+         SELECT AVG(VALUE) as average_object
+         FROM stats_object so
+         GROUP BY so.id_object
+      );
+   END //
+   DELIMITER ;
+   ```
+   2. Id del Objetp con estadistica fueza mas alta.
+   - **Procedimiento:**  `objec_statistics_heigth_armor`
+   ```sql
+   DROP PROCEDURE IF EXISTS objec_statistics_heigth_armor;
+   DELIMITER //
+   CREATE PROCEDURE objec_statistics_heigth_armor()
+   BEGIN
+      SELECT table_stats.id_object, table_stats.value
+      FROM (
+         SELECT so.id_object as id_object, so.value as value
+         FROM stats_object so
+         WHERE so.id_stats = (
+               SELECT id_statistics
+               FROM statistics 
+               WHERE statistics_type = 'Armor'
+         )) as table_stats
+      WHERE table_stats.value >= (
+         SELECT so.value as value
+         FROM stats_object so
+         WHERE so.id_stats = (
+               SELECT id_statistics
+               FROM statistics 
+               WHERE statistics_type = 'Armor'
+         )
+      );    
+   END //
+   DELIMITER ;
+   ```
+   3. Objeto con mas estadisticas.
    - **Procedimiento:**  ``
    ```sql
+   DROP PROCEDURE IF EXISTS object_with_more_statistics;
+   DELIMITER //
+   CREATE PROCEDURE object_with_more_statistics()
+   BEGIN
+      SELECT tabla_stats.id_object,tabla_stats.cantidad
+      FROM (
+         SELECT so.id_object as id_object, SUM(so.value) as cantidad
+         FROM stats_object so
+         GROUP BY so.id_object
+         ) as tabla_stats
+      WHERE tabla_stats.cantidad >= ALL(
+         SELECT SUM(so.value) as cantidad
+         FROM stats_object so
+         GROUP BY so.id_object
+      );
+   END //
+   DELIMITER ;
    ```
-   1. query 2
+
+   4. Estadistica promedio de todos los objetos
    - **Procedimiento:**  ``
    ```sql
+   DROP PROCEDURE IF EXISTS average_statistics_all_objects;
+   DELIMITER //
+   CREATE PROCEDURE average_statistics_all_objects()
+   BEGIN
+      SELECT s.statistics_type , AVG(so.value)
+      FROM stats_object so
+      JOIN statistics s ON so.id_stats = s.id_statistics
+      GROUP BY s.statistics_type;
+   END //
+   DELIMITER ;
    ```
-   1. query 3
-   - **Procedimiento:**  ``
-   ```sql
-   ```
-   1. query 4
-   - **Procedimiento:**  ``
-   ```sql
-   ```
-   1. query 5
+   5. a
    - **Procedimiento:**  ``
    ```sql
    ```
