@@ -713,8 +713,11 @@ DELIMITER ;
 -- _________________________________________________character_wow
 DROP PROCEDURE IF EXISTS statistic_by_name;
 DELIMITER //
-CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+CREATE PROCEDURE character_by_name(IN name VARCHAR(30))
 BEGIN
+    SELECT *
+    FROM character_wow ch
+    WHERE ch.name_character_wow =name;
 END //
 DELIMITER ;
 
@@ -723,6 +726,38 @@ DROP PROCEDURE IF EXISTS statistic_by_name;
 DELIMITER //
 CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
 BEGIN
+SELECT cw.name_character_wow AS character_name,
+    (
+        SELECT class 
+        FROM class 
+        WHERE class_id = cw.id_class
+    ) AS class_character,
+    cw.level AS character_level,
+    (
+        SELECT race 
+        FROM race 
+        WHERE id = (
+            SELECT race_id 
+            FROM class 
+            WHERE class_id = cw.id_class
+            )
+    ) AS race,
+    (
+        SELECT faction_name 
+        FROM 
+        faction 
+        WHERE id = (
+            SELECT faction_id 
+            FROM race 
+            WHERE id = (
+                SELECT race_id 
+                FROM class 
+                WHERE class_id = cw.id_class
+            )
+        )
+    ) AS character_faction
+FROM character_wow cw;
+
 END //
 DELIMITER ;
 
