@@ -427,6 +427,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
       DECLARE EXIT HANDLER FOR SQLEXCEPTION
       BEGIN
          SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Error when inserting purchase information.';
+         ROLLBACK;
       END;
 
       SELECT c.id_object , c.value_wc INTO var_object_id, var_value_object
@@ -438,6 +439,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
       WHERE a.user_name = in_name_account
       AND a.token_account = in_token_account;
 
+
       IF var_user_valid IS NOT NULL AND var_object_id IS NOT NULL
       THEN
          INSERT INTO buy(user_name,id_object,token_account)
@@ -446,7 +448,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
          UPDATE account
          SET wow_currency = wow_currency - var_value_object
          WHERE token_account = in_token_account;
-         SELECT 'Se guardo';
+
       END IF;
       COMMIT;
       SELECT 'Terminando';
