@@ -894,14 +894,26 @@ CALL account_number_charact();
 
 -- __________________________________________________user_account
 
-DROP PROCEDURE IF EXISTS account_number_charact;
+DROP PROCEDURE IF EXISTS user_account_value_wow_currency;
 DELIMITER //
-CREATE PROCEDURE account_number_charact()
+CREATE PROCEDURE user_account_value_wow_currency()
 BEGIN
-    
+    SELECT 
+    (
+        SELECT email 
+        FROM user_account 
+        WHERE user_account.email = account.email
+    ) AS email,
+    (
+        SELECT password_user 
+        FROM user_account 
+        WHERE user_account.email = account.email
+    ) AS password_user,
+    wow_currency
+    FROM account;
 END //
 DELIMITER ;
-CALL account_number_charact();
+CALL user_account_value_wow_currency();
 
 
 
