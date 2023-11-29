@@ -915,16 +915,30 @@ END //
 DELIMITER ;
 CALL user_account_value_wow_currency();
 
+SELECT email
+FROM user_account
+WHERE email IN (
+    SELECT email
+    FROM character_wow
+    GROUP BY user_name
+    HAVING COUNT(*) > 1
+);
 
-
-DROP PROCEDURE IF EXISTS account_number_charact;
+DROP PROCEDURE IF EXISTS user_more_one_character;
 DELIMITER //
-CREATE PROCEDURE account_number_charact()
+CREATE PROCEDURE user_more_one_character()
 BEGIN
-
+    SELECT email
+    FROM user_account
+    WHERE email IN (
+        SELECT email
+        FROM character_wow
+        GROUP BY user_name
+        HAVING COUNT(*) > 1
+    );
 END //
 DELIMITER ;
-CALL account_number_charact();
+CALL user_more_one_character();
 
 
 
