@@ -2,7 +2,6 @@
 -- OBJECT _________________________________________________
 
 -- CREATE and UPDATE
-SELECT * FROM class;
 DROP PROCEDURE IF EXISTS create_object;
 DELIMITER //
 CREATE PROCEDURE create_object(
@@ -724,7 +723,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS statistic_by_name;
 DELIMITER //
-CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+CREATE PROCEDURE statistic_by_name()
 BEGIN
 SELECT cw.name_character_wow AS character_name,
     (
@@ -762,27 +761,139 @@ END //
 DELIMITER ;
 
 
-DROP PROCEDURE IF EXISTS statistic_by_name;
+DROP PROCEDURE IF EXISTS character_lvl_highest;
 DELIMITER //
-CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+CREATE PROCEDURE character_lvl_highest()
 BEGIN
+    SELECT ch.name_character_wow, ch.level
+    FROM character_wow ch
+    WHERE level = (
+        SELECT MAX(level)
+        FROM character_wow
+    );
 END //
 DELIMITER ;
 
 
-DROP PROCEDURE IF EXISTS statistic_by_name;
+DROP PROCEDURE IF EXISTS character_more_objects;
 DELIMITER //
-CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+CREATE PROCEDURE character_more_objects()
 BEGIN
+    SELECT *
+    FROM character_wow
+    WHERE id_character_wow = (
+        SELECT c.id_character_wow
+        FROM character_wow c
+        JOIN inventory i ON c.id_character_wow = i.id_character_wow
+        JOIN object o ON i.id_object = o.id_object
+        WHERE o.category = 'epic'
+        GROUP BY c.id_character_wow
+        ORDER BY COUNT(o.id_object) DESC
+        LIMIT 1
+    );
 END //
 DELIMITER ;
+CALL character_more_objects();
 
-
-DROP PROCEDURE IF EXISTS statistic_by_name;
+DROP PROCEDURE IF EXISTS character_by_account;
 DELIMITER //
-CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+CREATE PROCEDURE character_by_account(IN account_name VARCHAR(20))
 BEGIN
+    SELECT ch.name_character_wow
+    FROM character_wow ch
+    WHERE ch.user_name = (
+        SELECT user_name
+        FROM account
+        WHERE user_name = account_name
+    );
 END //
 DELIMITER ;
+CALL character_by_account('admin_user');
+
+
 -- character_wow_________________________________________________
 
+-- _______________________________________________________account
+
+DROP PROCEDURE IF EXISTS average_race_currency;
+DELIMITER //
+CREATE PROCEDURE average_race_currency()
+BEGIN
+    SELECT race, (
+    SELECT AVG(wow_currency)
+    FROM account a
+    JOIN character_wow c ON a.user_name = c.user_name
+    JOIN class cl ON c.id_class = cl.class_id
+    WHERE cl.race_id = r.id
+    ) AS promedio_monedas
+    FROM race r;
+END //
+DELIMITER ;
+CALL average_race_currency();
+
+
+
+DROP PROCEDURE IF EXISTS accont_more_currenyc;
+DELIMITER //
+CREATE PROCEDURE accont_more_currenyc()
+BEGIN
+    SELECT *
+    FROM account
+    WHERE wow_currency = (
+        SELECT MAX(wow_currency)
+        FROM account
+    );
+END //
+DELIMITER ;
+CALL accont_more_currenyc();
+
+
+
+DROP PROCEDURE IF EXISTS account_by_token;
+DELIMITER //
+CREATE PROCEDURE account_by_token(IN token VARCHAR(30))
+BEGIN
+    SELECT *
+    FROM account
+    WHERE token_account = token;    
+END //
+DELIMITER ;
+CALL account_by_token('token123');
+
+
+
+DROP PROCEDURE IF EXISTS account_by_currency;
+DELIMITER //
+CREATE PROCEDURE account_by_currency(IN number double(8,2))
+BEGIN
+    SELECT user_name, wow_currency
+    FROM account
+    WHERE wow_currency > number;
+END //
+DELIMITER ;
+CALL account_by_currency();
+
+
+
+DROP PROCEDURE IF EXISTS account_number_charact;
+DELIMITER //
+CREATE PROCEDURE account_number_charact()
+BEGIN
+    SELECT a.user_name, (
+    SELECT COUNT(c.id_character_wow)
+    FROM character_wow c
+    WHERE c.user_name = a.user_name
+    ) AS total_characters
+    FROM account a;
+END //
+DELIMITER ;
+CALL account_number_charact();
+
+
+-- account_______________________________________________________
+
+-- __________________________________________________user_account
+
+
+
+-- user_account__________________________________________________
