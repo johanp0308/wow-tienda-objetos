@@ -1203,7 +1203,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    CALL user_account_value_wow_currency();
    ```
-   1. query 2
+   2. 
    - **Procedimiento:**  ``
    ```sql
    ```
@@ -1229,8 +1229,8 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```sql
    UPDATE locker_object
    SET 
-      id_object = 1,
-      id_object = 2
+      id_locker = 1,
+      id_object ='elixir013' 
    WHERE id_locker = 1 AND id_object =  2;
    ```
    DELETE:
@@ -1241,7 +1241,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```sql
    SELECT * FROM locker_object; 
    ```
-   1. query 1
+   1. 
    - **Procedimiento:**  ``
    ```sql
    ```
