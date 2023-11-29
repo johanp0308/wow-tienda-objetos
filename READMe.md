@@ -899,6 +899,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```
    5. Estadisticas por nombre
    - **Procedimiento:**  `statistic_by_name`
+   - **Parametro:** `IN name VARCHAR(20)`
    ```sql
    DROP PROCEDURE IF EXISTS statistic_by_name;
    DELIMITER //
@@ -933,15 +934,58 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```sql
    SELECT * FROM character_wow;
    ```
-   1. query 1
+   1. Datos del Personaje por el nombre.
+   - **Procedimiento:**  `character_by_name`
+   - **Parametro:** `IN name VARCHAR(30)`
+   ```sql
+   CREATE PROCEDURE character_by_name(IN name VARCHAR(30))
+   BEGIN
+      SELECT *
+      FROM character_wow ch
+      WHERE ch.name_character_wow =name;
+   END //
+   DELIMITER ;
+   ```
+   2. Nombre, Clase y la faccion del personaje mas su nivel.
    - **Procedimiento:**  ``
    ```sql
+   CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+   BEGIN
+   SELECT cw.name_character_wow AS character_name,
+      (
+         SELECT class 
+         FROM class 
+         WHERE class_id = cw.id_class
+      ) AS class_character,
+      cw.level AS character_level,
+      (
+         SELECT race 
+         FROM race 
+         WHERE id = (
+               SELECT race_id 
+               FROM class 
+               WHERE class_id = cw.id_class
+               )
+      ) AS race,
+      (
+         SELECT faction_name 
+         FROM 
+         faction 
+         WHERE id = (
+               SELECT faction_id 
+               FROM race 
+               WHERE id = (
+                  SELECT race_id 
+                  FROM class 
+                  WHERE class_id = cw.id_class
+               )
+         )
+      ) AS character_faction
+   FROM character_wow cw;
+   END //
+   DELIMITER ;
    ```
-   1. query 2
-   - **Procedimiento:**  ``
-   ```sql
-   ```
-   1. query 3
+   3. 
    - **Procedimiento:**  ``
    ```sql
    ```
