@@ -894,6 +894,57 @@ CALL account_number_charact();
 
 -- __________________________________________________user_account
 
+DROP PROCEDURE IF EXISTS account_number_charact;
+DELIMITER //
+CREATE PROCEDURE account_number_charact()
+BEGIN
+    
+END //
+DELIMITER ;
+CALL account_number_charact();
 
+
+
+DROP PROCEDURE IF EXISTS account_number_charact;
+DELIMITER //
+CREATE PROCEDURE account_number_charact()
+BEGIN
+
+END //
+DELIMITER ;
+CALL account_number_charact();
+
+
+
+DROP PROCEDURE IF EXISTS account_number_charact;
+DELIMITER //
+CREATE PROCEDURE account_number_charact()
+BEGIN
+
+END //
+DELIMITER ;
+CALL account_number_charact();
+
+
+
+DROP PROCEDURE IF EXISTS account_number_charact;
+DELIMITER //
+CREATE PROCEDURE account_number_charact()
+BEGIN
+
+END //
+DELIMITER ;
+CALL account_number_charact();
+
+
+
+DROP PROCEDURE IF EXISTS account_number_charact;
+DELIMITER //
+CREATE PROCEDURE account_number_charact()
+BEGIN
+
+END //
+DELIMITER ;
+CALL account_number_charact();
 
 -- user_account__________________________________________________
