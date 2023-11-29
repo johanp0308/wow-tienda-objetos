@@ -1203,9 +1203,24 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    CALL user_account_value_wow_currency();
    ```
-   2. 
-   - **Procedimiento:**  ``
+   2. Usuarios con mas de una personaje;
+   - **Procedimiento:**  `user_more_one_character`
    ```sql
+   DROP PROCEDURE IF EXISTS user_more_one_character;
+   DELIMITER //
+   CREATE PROCEDURE user_more_one_character()
+   BEGIN
+      SELECT email
+      FROM user_account
+      WHERE email IN (
+         SELECT email
+         FROM character_wow
+         GROUP BY user_name
+         HAVING COUNT(*) > 1
+      );
+   END //
+   DELIMITER ;
+   CALL user_more_one_character();
    ```
    1. query 3
    - **Procedimiento:**  ``
