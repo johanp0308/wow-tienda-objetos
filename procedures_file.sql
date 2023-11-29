@@ -514,21 +514,240 @@ DELIMITER ;
 
 -- ___
 
-DROP PROCEDURE IF EXISTS name;
+DROP PROCEDURE IF EXISTS objet_more_statist_by_category_epic;
 DELIMITER //
 CREATE PROCEDURE name()
 BEGIN
-    
+    SELECT tabla_stats.id_object, tabla_stats.average
+    FROM (
+        SELECT so.id_object as id_object, AVG(so.value) as average
+        FROM stats_object so
+        JOIN object o ON so.id_object = o.id_object
+        WHERE o.category LIKE 'epic'
+        GROUP BY so.id_object
+    )  as tabla_stats
+    WHERE tabla_stats.average >= ALL(
+        SELECT AVG(so.value) as average
+        FROM stats_object so
+        JOIN object o ON so.id_object = o.id_object
+        WHERE o.category LIKE 'epic'
+        GROUP BY so.id_object
+    );
 END //
 DELIMITER ;
+
+
 
 -- STATS_OBJECT__________________________________________________
 
--- ____________________________________________________
-DROP PROCEDURE IF EXISTS name;
-DELIMITER //
-CREATE PROCEDURE name()
-BEGIN
+-- ______________________________________________________IVENTORY
 
+DROP PROCEDURE IF EXISTS object_in_inventory_by_user;
+DELIMITER //
+CREATE PROCEDURE object_in_inventory_by_user(IN userName VARCHAR(50))
+BEGIN
+    SELECT o.*
+    FROM inventory inv
+    JOIN character_wow ch ON inv.id_character_wow = ch.id_character_wow
+    JOIN object o ON inv.id_object = o.id_object
+    WHERE ch.user_name LIKE userName;
 END //
 DELIMITER ;
+
+-- ___
+
+DROP PROCEDURE IF EXISTS object_in_user;
+DELIMITER //
+CREATE PROCEDURE object_in_user()
+BEGIN
+    SELECT ch.user_name
+    FROM character_wow ch
+    WHERE ch.id_character_wow IN (
+        SELECT id_character_wow
+        FROM inventory
+        WHERE id_object = 'walkerboots026'
+    );
+END //
+DELIMITER ;
+
+-- ____
+
+DROP PROCEDURE IF EXISTS object_by_account_by_character;
+DELIMITER //
+CREATE PROCEDURE object_by_account_by_character()
+BEGIN
+    SELECT a.user_name, ch.name_character_wow, COUNT(inv.id_object)
+    FROM account a, character_wow ch, inventory inv
+    WHERE a.user_name = ch.user_name AND ch.id_character_wow = inv.id_character_wow
+    GROUP BY a.user_name, ch.name_character_wow;
+END //
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS orfanized_object_category_character;
+DELIMITER //
+CREATE PROCEDURE orfanized_object_category_character(IN name_character VARCHAR(30))
+BEGIN
+    SELECT o.category, COUNT(o.id_object) as objects
+    FROM object o
+    JOIN inventory inv ON o.id_object = inv.id_object
+    WHERE inv.id_character_wow = (
+        SELECT id_character_wow
+        FROM character_wow
+        WHERE name_character_wow = name_character
+    )
+    GROUP BY o.category;
+END //
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS object_in_catalogue_and_value;
+DELIMITER //
+CREATE PROCEDURE object_in_catalogue_and_value()
+BEGIN
+SELECT o.name_object,(
+    SELECT c.value_wc 
+    FROM catalogue c 
+    WHERE c.id_object = o.id_object
+    ) AS value_wc
+FROM object o
+JOIN inventory inv ON o.id_object = inv.id_object;
+END //
+DELIMITER ;
+
+-- INVENTORY_____________________________________________________
+-- ____________________________________________________statistics
+
+DROP PROCEDURE IF EXISTS statistics_not_object;
+DELIMITER //
+CREATE PROCEDURE statistics_not_object()
+BEGIN
+    SELECT s.statistics_type
+    FROM statistics s
+    WHERE s.id_statistics NOT IN (
+        SELECT so.id_stats 
+        FROM stats_object so
+    );
+END //
+DELIMITER ;
+
+SELECT s.statistics_type
+FROM statistics s
+LEFT JOIN stats_object so ON s.id_statistics = so.id_stats
+WHERE so.id_object IS NULL; 
+
+SELECT s.statistics_type
+FROM statistics s
+WHERE s.id_statistics NOT IN (SELECT so.id_stats FROM stats_object so);
+
+DROP PROCEDURE IF EXISTS statis_count_use;
+DELIMITER //
+CREATE PROCEDURE statis_count_use()
+BEGIN
+    SELECT
+        s.statistics_type,
+        (
+            SELECT COUNT(so.id_stats) 
+            FROM stats_object so 
+            WHERE so.id_stats = s.id_statistics
+        ) AS count_id_statistics
+    FROM
+        statistics s;
+END //
+DELIMITER ;
+
+
+
+
+DROP PROCEDURE IF EXISTS statistics_not_object;
+DELIMITER //
+CREATE PROCEDURE statistics_not_object()
+BEGIN
+    SELECT cw.name_character_wow AS character_name,AVG(so.value) AS average_stats
+    FROM character_wow cw
+    JOIN inventory inv ON cw.id_character_wow = inv.id_character_wow
+    JOIN object o ON inv.id_object = o.id_object
+    JOIN stats_object so ON o.id_object = so.id_object
+    GROUP BY cw.name_character_wow;
+END //
+DELIMITER ;
+
+
+SELECT 
+    cw.name_character_wow AS character_name,
+    COUNT(inv.id_object) AS items,
+    SUM(so.value) AS total_stats_value,
+    AVG(so.value) AS average_stats_value
+FROM character_wow cw
+LEFT JOIN inventory inv ON cw.id_character_wow = inv.id_character_wow
+LEFT JOIN stats_object so ON inv.id_object = so.id_object
+GROUP BY cw.name_character_wow;
+
+DROP PROCEDURE IF EXISTS statistics_not_object;
+DELIMITER //
+CREATE PROCEDURE statistc_general_for_character()
+BEGIN
+    SELECT 
+        cw.name_character_wow AS character_name,
+        COUNT(inv.id_object) AS items,
+        SUM(so.value) AS total_stats_value,
+        AVG(so.value) AS average_stats_value
+    FROM character_wow cw
+    LEFT JOIN inventory inv ON cw.id_character_wow = inv.id_character_wow
+    LEFT JOIN stats_object so ON inv.id_object = so.id_object
+    GROUP BY cw.name_character_wow;
+END //
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS statistic_by_name;
+DELIMITER //
+CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+BEGIN
+    SELECT * 
+    FROM statistics s
+    WHERE s.statistics_type = name;
+END //
+DELIMITER ;
+-- statistics_________________________________________________
+
+-- _________________________________________________character_wow
+DROP PROCEDURE IF EXISTS statistic_by_name;
+DELIMITER //
+CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+BEGIN
+END //
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS statistic_by_name;
+DELIMITER //
+CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+BEGIN
+END //
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS statistic_by_name;
+DELIMITER //
+CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+BEGIN
+END //
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS statistic_by_name;
+DELIMITER //
+CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+BEGIN
+END //
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS statistic_by_name;
+DELIMITER //
+CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+BEGIN
+END //
+DELIMITER ;
+-- character_wow_________________________________________________
+
