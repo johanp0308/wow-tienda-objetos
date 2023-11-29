@@ -710,7 +710,7 @@ DELIMITER ;
 -- statistics_________________________________________________
 
 -- _________________________________________________character_wow
-DROP PROCEDURE IF EXISTS statistic_by_name;
+DROP PROCEDURE IF EXISTS character_by_name;
 DELIMITER //
 CREATE PROCEDURE character_by_name(IN name VARCHAR(30))
 BEGIN
@@ -721,9 +721,9 @@ END //
 DELIMITER ;
 
 
-DROP PROCEDURE IF EXISTS statistic_by_name;
+DROP PROCEDURE IF EXISTS name_class_race_faction;
 DELIMITER //
-CREATE PROCEDURE statistic_by_name()
+CREATE PROCEDURE name_class_race_faction()
 BEGIN
 SELECT cw.name_character_wow AS character_name,
     (
