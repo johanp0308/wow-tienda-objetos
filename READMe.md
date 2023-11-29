@@ -1139,7 +1139,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    CALL account_by_currency();
    ```
    5. Todas la cuentas y la cantidad personajes. 
-   - **Procedimiento:**  ``
+   - **Procedimiento:**  `account_number_charact`
    ```sql
    DROP PROCEDURE IF EXISTS account_number_charact;
    DELIMITER //
@@ -1179,9 +1179,29 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    SELECT * FROM user_account;
    ```
 
-   1. query 1
-   - **Procedimiento:**  ``
+   1.  Los usuarios y la cantidad de monedas que tenga la cuenta con su dinero.
+   - **Procedimiento:**  `user_account_value_wow_currency`
    ```sql
+   DROP PROCEDURE IF EXISTS user_account_value_wow_currency;
+   DELIMITER //
+   CREATE PROCEDURE user_account_value_wow_currency()
+   BEGIN
+      SELECT 
+      (
+         SELECT email 
+         FROM user_account 
+         WHERE user_account.email = account.email
+      ) AS email,
+      (
+         SELECT password_user 
+         FROM user_account 
+         WHERE user_account.email = account.email
+      ) AS password_user,
+      wow_currency
+      FROM account;
+   END //
+   DELIMITER ;
+   CALL user_account_value_wow_currency();
    ```
    1. query 2
    - **Procedimiento:**  ``
