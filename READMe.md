@@ -438,22 +438,22 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
       WHERE a.user_name = in_name_account
       AND a.token_account = in_token_account;
 
-      IF var_object_id IS NOT NULL AND var_user_valid IS NOT NULL
+      IF var_user_valid IS NOT NULL AND var_object_id IS NOT NULL
       THEN
-         INSERT INTO buy(user_name,id_object,token_accoun)
+         INSERT INTO buy(user_name,id_object,token_account)
          VALUES (var_user_valid,in_id_object,in_token_account);
 
          UPDATE account
          SET wow_currency = wow_currency - var_value_object
          WHERE token_account = in_token_account;
-
+         SELECT 'Se guardo';
       END IF;
       COMMIT;
+      SELECT 'Terminando';
    END //
    DELIMITER ;
    ```
    UPDATE:
-   - **Procedimiento:** ``
    ```sql
    UPDATE buy b
    SET 
@@ -491,7 +491,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    ```
 
-   2. Todas las compras de un Usuario.(Se usa el token de la compra)
+   1. Todas las compras de un Usuario.(Se usa el token de la compra)
    - **Procedimiento:**  `buys_of_user_by_token`
    - **Parametro:** `IN token_user VARCHAR(30)`
    ```sql
@@ -510,7 +510,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   3. Compras de un determinado objeto por su identificador.
+   1. Compras de un determinado objeto por su identificador.
    - **Procedimiento:**  `buys_by_object_id`
    - **Parametro:** `IN object_id VARCHAR(50)`
    ```sql
@@ -529,7 +529,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    ```
 
-   4. Compras de objetos por tipo
+   1. Compras de objetos por tipo
    - **Procedimiento:**  `buys_by_type_object`
    - **Parametro:** `IN object_type VARCHAR(20)`
    ```sql
@@ -547,7 +547,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   5. El Objeto mas Comprado
+   1. El Objeto mas Comprado
    - **Procedimiento:**  ``
    ```sql
    DROP PROCEDURE IF EXISTS object_most_purchase_item;
@@ -569,7 +569,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-4. Table: `stats_object`
+1. Table: `stats_object`
    
    CREATE:
    ```sql
@@ -613,7 +613,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   2. Id del Objetp con estadistica fueza mas alta.
+   1. Id del Objetp con estadistica fueza mas alta.
    - **Procedimiento:**  `objec_statistics_heigth_armor`
    ```sql
    DROP PROCEDURE IF EXISTS objec_statistics_heigth_armor;
@@ -641,7 +641,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   3. Objeto con mas estadisticas.
+   1. Objeto con mas estadisticas.
    - **Procedimiento:**  ``
    ```sql
    DROP PROCEDURE IF EXISTS object_with_more_statistics;
@@ -663,7 +663,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    ```
 
-   4. Estadistica promedio de todos los objetos
+   1. Estadistica promedio de todos los objetos
    - **Procedimiento:**  ``
    ```sql
    DROP PROCEDURE IF EXISTS average_statistics_all_objects;
@@ -677,7 +677,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   5. 
+   1. 
    - **Procedimiento:**  ``
    ```sql
    DROP PROCEDURE IF EXISTS objet_more_statist_by_category_epic;
@@ -702,7 +702,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-5. Table: `inventory`
+2. Table: `inventory`
    CREATE:
    ```sql
    INSERT INTO inventory(id_inventory,id_character_wow,id_object,amount) VALUES(1,1,'walkerboots026',2);
@@ -740,7 +740,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   2. Personajes con un objeto especifico en el inventario.
+   1. Personajes con un objeto especifico en el inventario.
    - **Procedimiento:**  ``
    ```sql
    DROP PROCEDURE IF EXISTS object_in_user;
@@ -758,7 +758,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    ```
 
-   3. Cantida Objetos de inventario pero por personaje en cuenta.
+   1. Cantida Objetos de inventario pero por personaje en cuenta.
    - **Procedimiento:**  `object_by_account_by_character`
    ```sql
    DROP PROCEDURE IF EXISTS object_by_account_by_character;
@@ -772,7 +772,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   4. Organizar objetos por categoria de un personaje.
+   1. Organizar objetos por categoria de un personaje.
    - **Procedimiento:** `orfanized_object_category_character`
    - **Parametros:** `IN name_character VARCHAR(30)`
    ```sql
@@ -792,7 +792,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   5. Objetos de los inventario de los personajes que estan a la venta y su valor.
+   1. Objetos de los inventario de los personajes que estan a la venta y su valor.
    - **Procedimiento:**  `object_in_catalogue_and_value`
    ```sql
    DROP PROCEDURE IF EXISTS object_in_catalogue_and_value;
@@ -809,7 +809,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-6. Table: `statistics`
+3. Table: `statistics`
    CREATE:
    ```sql
    INSERT INTO statistics (id_statistics, statistics_type) VALUES (15, 'Parry');  
@@ -848,7 +848,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   2. Cantidad de veces que se uso una estadisitica en un objeto.
+   1. Cantidad de veces que se uso una estadisitica en un objeto.
    - **Procedimiento:**  ``
    ```sql
    DROP PROCEDURE IF EXISTS statis_count_use;
@@ -867,7 +867,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   3. Estadistica promedio de los personajes con objetos en su inventario
+   1. Estadistica promedio de los personajes con objetos en su inventario
    - **Procedimiento:**  `statistics_not_object`
    ```sql
    DROP PROCEDURE IF EXISTS statistics_not_object;
@@ -883,7 +883,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   4. Estadisiticas generales de un personaje con respecto a su inventario.
+   1. Estadisiticas generales de un personaje con respecto a su inventario.
    - **Procedimiento:**  ``
    ```sql
    DROP PROCEDURE IF EXISTS statistics_not_object;
@@ -902,7 +902,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   5. Estadisticas por nombre
+   1. Estadisticas por nombre
    - **Procedimiento:**  `statistic_by_name`
    - **Parametro:** `IN name VARCHAR(20)`
    ```sql
@@ -916,7 +916,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-7. Table: `character_wow`
+4. Table: `character_wow`
    CREATE:
    ```sql
    INSERT INTO character_wow (id_character_wow, user_name, id_class, level, name_character_wow) VALUES (7, 'alice_jones', 4, 90, 'Baine');
@@ -951,7 +951,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   2. Nombre, Clase y la faccion del personaje mas su nivel.
+   1. Nombre, Clase y la faccion del personaje mas su nivel.
    - **Procedimiento:**  `statistic_by_name`
    ```sql
    CREATE PROCEDURE statistic_by_name()
@@ -990,7 +990,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   3. Dame el personaje del nivel mas alto.
+   1. Dame el personaje del nivel mas alto.
    - **Procedimiento:**  `character_lvl_highest`
    ```sql
    DROP PROCEDURE IF EXISTS character_lvl_highest;
@@ -1006,7 +1006,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   4. El personaje con mas objetos epicos.
+   1. El personaje con mas objetos epicos.
    - **Procedimiento:**  `character_more_objects`
    ```sql
    DROP PROCEDURE IF EXISTS character_more_objects;
@@ -1029,7 +1029,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    CALL character_more_objects();
    ```
-   5. Personajes por cuenta.
+   1. Personajes por cuenta.
    - **Procedimiento:**  `character_by_account`
    - **Parametro:** `IN account_name VARCHAR(20)`
    ```sql
@@ -1049,7 +1049,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    CALL character_by_account('admin_user');
    ```
 
-8. Table: `account`
+5. Table: `account`
    CREATE:
    ```sql
    INSERT INTO account (user_name, password_account, email, wow_currency, token_account) VALUES ('admin_user', 'adminpass123', 'admin@example.com', 200.0, 'token789');
@@ -1091,7 +1091,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    CALL average_race_currency();
    ```
-   2. Personaje con mayor numero de Monedas Wow. 
+   1. Personaje con mayor numero de Monedas Wow. 
    - **Procedimiento:**  `accont_more_currenyc`
    ```sql
    DROP PROCEDURE IF EXISTS accont_more_currenyc;
@@ -1108,7 +1108,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    CALL accont_more_currenyc();
    ```
-   3. Cuenta por token.
+   1. Cuenta por token.
    - **Procedimiento:**  `account_by_token`
    - **Parametro:** `IN token VARCHAR(30)`
    ```sql
@@ -1123,7 +1123,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    CALL account_by_token('token123');
    ```
-   4. Cuenta y cantidad de moenedas mayor a `number`.
+   1. Cuenta y cantidad de moenedas mayor a `number`.
    - **Procedimiento:**  `account_by_currency`
    - **Parametro:** `IN number double(8,2)`
    ```sql
@@ -1138,7 +1138,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    CALL account_by_currency();
    ```
-   5. Todas la cuentas y la cantidad personajes. 
+   1. Todas la cuentas y la cantidad personajes. 
    - **Procedimiento:**  `account_number_charact`
    ```sql
    DROP PROCEDURE IF EXISTS account_number_charact;
@@ -1155,7 +1155,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    CALL account_number_charact();
    ```
-9.  Table: `user_account`
+6.  Table: `user_account`
    CREATE:
    ```sql
    INSERT INTO user_account (email, password_user) VALUES ('bob.miller@example.com', 'letmein2022');
@@ -1203,7 +1203,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    CALL user_account_value_wow_currency();
    ```
-   2. Usuarios con mas de una personaje;
+   1. Usuarios con mas de una personaje;
    - **Procedimiento:**  `user_more_one_character`
    ```sql
    DROP PROCEDURE IF EXISTS user_more_one_character;
@@ -1220,7 +1220,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
       );
    END //
    DELIMITER ;
-   CALL user_more_one_character();
+   CALL user_more_one_character();  
    ```
    1. query 3
    - **Procedimiento:**  ``
@@ -1234,7 +1234,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-10. Table: `locker_object`
+7.  Table: `locker_object`
    CREATE:
    ```sql
    INSERT INTO locker_object(id_locker,id_object) VALUES(1,'elixir013'); 
@@ -1276,7 +1276,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-11. Table: `catalogue`
+8.  Table: `catalogue`
    CREATE:
    ```sql
    INSERT INTO catalogue (id_producto, value_wc, id_object);
@@ -1317,7 +1317,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-12. Table: `locker`
+9.  Table: `locker`
    CREATE:
    ```sql
    INSERT INTO locker (id_locker, id_account) VALUES (2, 'jane_smith');
@@ -1359,7 +1359,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-13. Table: `race`
+10. Table: `race`
    CREATE:
    ```sql
    INSERT INTO race (id, race, faction_id) VALUES (3, 'Tauren', 1);
@@ -1401,7 +1401,7 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    - **Procedimiento:**  ``
    ```sql
    ```
-14. Table: `class`
+11. Table: `class`
    CREATE:
    ```sql
    INSERT INTO class (class_id, race_id, class) VALUES (1, 1, 'Warrior');
