@@ -442,6 +442,11 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
       THEN
          INSERT INTO buy(user_name,id_object,token_accoun)
          VALUES (var_user_valid,in_id_object,in_token_account);
+
+         UPDATE account
+         SET wow_currency = wow_currency - var_value_object
+         WHERE token_account = in_token_account;
+
       END IF;
       COMMIT;
    END //
@@ -947,9 +952,9 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    DELIMITER ;
    ```
    2. Nombre, Clase y la faccion del personaje mas su nivel.
-   - **Procedimiento:**  ``
+   - **Procedimiento:**  `statistic_by_name`
    ```sql
-   CREATE PROCEDURE statistic_by_name(IN name VARCHAR(20))
+   CREATE PROCEDURE statistic_by_name()
    BEGIN
    SELECT cw.name_character_wow AS character_name,
       (
@@ -985,18 +990,65 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    END //
    DELIMITER ;
    ```
-   3. 
-   - **Procedimiento:**  ``
+   3. Dame el personaje del nivel mas alto.
+   - **Procedimiento:**  `character_lvl_highest`
    ```sql
+   DROP PROCEDURE IF EXISTS character_lvl_highest;
+   DELIMITER //
+   CREATE PROCEDURE character_lvl_highest()
+   BEGIN
+      SELECT ch.name_character_wow, ch.level
+      FROM character_wow ch
+      WHERE level = (
+         SELECT MAX(level)
+         FROM character_wow
+      );
+   END //
+   DELIMITER ;
    ```
-   1. query 4
-   - **Procedimiento:**  ``
+   4. El personaje con mas objetos epicos.
+   - **Procedimiento:**  `character_more_objects`
    ```sql
+   DROP PROCEDURE IF EXISTS character_more_objects;
+   DELIMITER //
+   CREATE PROCEDURE character_more_objects()
+   BEGIN
+      SELECT *
+      FROM character_wow
+      WHERE id_character_wow = (
+         SELECT c.id_character_wow
+         FROM character_wow c
+         JOIN inventory i ON c.id_character_wow = i.id_character_wow
+         JOIN object o ON i.id_object = o.id_object
+         WHERE o.category = 'epic'
+         GROUP BY c.id_character_wow
+         ORDER BY COUNT(o.id_object) DESC
+         LIMIT 1
+      );
+   END //
+   DELIMITER ;
+   CALL character_more_objects();
    ```
-   1. query 5
-   - **Procedimiento:**  ``
+   5. Personajes por cuenta.
+   - **Procedimiento:**  `character_by_account`
+   - **Parametro:** `IN account_name VARCHAR(20)`
    ```sql
+   DROP PROCEDURE IF EXISTS character_by_account;
+   DELIMITER //
+   CREATE PROCEDURE character_by_account(IN account_name VARCHAR(20))
+   BEGIN
+      SELECT ch.name_character_wow
+      FROM character_wow ch
+      WHERE ch.user_name = (
+         SELECT user_name
+         FROM account
+         WHERE user_name = account_name
+      );
+   END //
+   DELIMITER ;
+   CALL character_by_account('admin_user');
    ```
+
 8. Table: `account`
    CREATE:
    ```sql
@@ -1020,25 +1072,88 @@ En resumen, la implementación de este sistema no solo busca facilitar la transa
    ```sql
    SELECT * FROM account;
    ```
-   1. query 1
-   - **Procedimiento:**  ``
+   1. Promedio de monedas por race.
+   - **Procedimiento:**  `average_race_currency`
    ```sql
+   DROP PROCEDURE IF EXISTS average_race_currency;
+   DELIMITER //
+   CREATE PROCEDURE average_race_currency()
+   BEGIN
+      SELECT race, (
+      SELECT AVG(wow_currency)
+      FROM account a
+      JOIN character_wow c ON a.user_name = c.user_name
+      JOIN class cl ON c.id_class = cl.class_id
+      WHERE cl.race_id = r.id
+      ) AS promedio_monedas
+      FROM race r;
+   END //
+   DELIMITER ;
+   CALL average_race_currency();
    ```
-   1. query 2
-   - **Procedimiento:**  ``
+   2. Personaje con mayor numero de Monedas Wow. 
+   - **Procedimiento:**  `accont_more_currenyc`
    ```sql
+   DROP PROCEDURE IF EXISTS accont_more_currenyc;
+   DELIMITER //
+   CREATE PROCEDURE accont_more_currenyc()
+   BEGIN
+      SELECT *
+      FROM account
+      WHERE wow_currency = (
+         SELECT MAX(wow_currency)
+         FROM account
+      );
+   END //
+   DELIMITER ;
+   CALL accont_more_currenyc();
    ```
-   1. query 3
-   - **Procedimiento:**  ``
+   3. Cuenta por token.
+   - **Procedimiento:**  `account_by_token`
+   - **Parametro:** `IN token VARCHAR(30)`
    ```sql
+   DROP PROCEDURE IF EXISTS account_by_token;
+   DELIMITER //
+   CREATE PROCEDURE account_by_token(IN token VARCHAR(30))
+   BEGIN
+      SELECT *
+      FROM account
+      WHERE token_account = token;    
+   END //
+   DELIMITER ;
+   CALL account_by_token('token123');
    ```
-   1. query 4
-   - **Procedimiento:**  ``
+   4. Cuenta y cantidad de moenedas mayor a `number`.
+   - **Procedimiento:**  `account_by_currency`
+   - **Parametro:** `IN number double(8,2)`
    ```sql
+   DROP PROCEDURE IF EXISTS account_by_currency;
+   DELIMITER //
+   CREATE PROCEDURE account_by_currency(IN number double(8,2))
+   BEGIN
+      SELECT user_name, wow_currency
+      FROM account
+      WHERE wow_currency > number;
+   END //
+   DELIMITER ;
+   CALL account_by_currency();
    ```
-   1. query 5
+   5. Todas la cuentas y la cantidad personajes. 
    - **Procedimiento:**  ``
    ```sql
+   DROP PROCEDURE IF EXISTS account_number_charact;
+   DELIMITER //
+   CREATE PROCEDURE account_number_charact()
+   BEGIN
+      SELECT a.user_name, (
+      SELECT COUNT(c.id_character_wow)
+      FROM character_wow c
+      WHERE c.user_name = a.user_name
+      ) AS total_characters
+      FROM account a;
+   END //
+   DELIMITER ;
+   CALL account_number_charact();
    ```
 9.  Table: `user_account`
    CREATE:
